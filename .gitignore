@@ -1,0 +1,71 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+
+.idea/
+.vscode/
+.cursor/
+.cursorrules
+.cursorignore
+.cursorignorerules
+.cursorignorerules
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+# Local configuration
+Backend/src/main/resources/application-dev.yml
+Backend/src/main/resources/application.yaml
+
+# Generated build files
+Backend/bin/
+Backend/target/
+
+# Environment variables
+.env
+.env.*
+
+# Backend generated files
+Backend/bin/
+Backend/target/
+
+# Local development configuration
+Backend/src/main/resources/application-dev.yml
+
+# Environment files
+.env
+.env.*
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+Backend/src/main/resources/application-dev.yml
+Backend/src/main/resources/application-prod.yml
+
+Backend/api.http
+
+Backend/logs

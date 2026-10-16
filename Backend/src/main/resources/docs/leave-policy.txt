@@ -1,0 +1,298 @@
+# FINFLOW — COMPANY LEAVE AND OFFICIAL DUTY POLICY
+
+**Version:** 1.0  
+**Effective Date:** To be confirmed  
+**Applicable To:** All eligible employees  
+**Approval Authority:** Reporting Manager / HR Department
+
+---
+
+## 1. Purpose
+
+This policy establishes a transparent process for requesting personal leave, medical leave and permission to perform official duties outside the regular workplace.
+
+FinFlow assists employees and managers by evaluating requests against company policy. Its AI-powered RAG assistant provides policy-based recommendations only.
+
+The reporting manager retains responsibility for the final approval or rejection of every request.
+
+## 2. Available Leave Categories
+
+FinFlow supports three primary categories:
+
+1. Casual Leave (Personal)
+2. Medical Leave
+3. Official Duty (OD)
+
+Employees must select the category that accurately represents the purpose of their absence from the regular workplace.
+
+---
+
+## 3. Casual Leave (Personal)
+
+### 3.1 Purpose
+
+Casual Leave is intended for personal commitments, including:
+
+- Family functions and important personal events.
+- Personal appointments.
+- Travel for personal reasons.
+- Urgent family responsibilities.
+- Other reasonable personal circumstances.
+
+### 3.2 Entitlement
+
+Employees are entitled to 12 days of Casual Leave per calendar year, subject to their available leave balance.
+
+A maximum of three consecutive Casual Leave days may be requested under the standard policy.
+
+Unused Casual Leave cannot be carried forward to the following year.
+
+### 3.3 Application Requirements
+
+Employees should submit Casual Leave requests at least one day in advance.
+
+Emergency requests may be submitted with shorter notice when advance application is impractical.
+
+The employee must provide the requested dates and a brief reason. Employees are not required to disclose unnecessary personal details.
+
+### 3.4 Supporting Documents
+
+Supporting documents are optional for ordinary Casual Leave requests.
+
+Where the employee voluntarily provides supporting documentation, or where specific verification has been reasonably requested, documents may be submitted physically to the HR department after returning to the office.
+
+Examples include event invitations or relevant appointment confirmations.
+
+An employee should not be required to disclose unrelated private information.
+
+---
+
+## 4. Medical Leave
+
+### 4.1 Purpose
+
+Medical Leave supports employees who require time away from work because of:
+
+- Illness or injury.
+- Medical consultation or treatment.
+- Recovery following medical procedures.
+- Other legitimate health-related circumstances.
+
+### 4.2 Entitlement
+
+Employees are entitled to 10 paid Medical Leave days per calendar year.
+
+Unused Medical Leave may be carried forward, subject to a maximum accumulated balance of 15 days.
+
+### 4.3 Application Requirements
+
+Employees should notify their reporting manager as soon as reasonably possible.
+
+Advance notice is not mandatory for unexpected illness or medical emergencies.
+
+The employee must provide the requested leave dates and a brief reason. Detailed medical information is not required in the general leave application.
+
+### 4.4 Medical Supporting Documents
+
+Employees are encouraged to provide a doctor's prescription, medical certificate, consultation record or discharge summary when available.
+
+**Uploading medical documents through FinFlow is optional.**
+
+Employees may instead submit the relevant supporting documents physically to HR when they return to the office.
+
+For Medical Leave exceeding two consecutive days, employees should provide an appropriate medical certificate or equivalent supporting record upon returning to the workplace, where reasonably obtainable.
+
+If documentation cannot be obtained, the employee may explain the circumstances privately to HR.
+
+Medical documents must be handled confidentially and must not be unnecessarily circulated to managers or other employees.
+
+### 4.5 Return-to-Office Support
+
+Upon returning from Medical Leave, employees may voluntarily communicate any temporary workplace assistance they require.
+
+Examples include:
+
+- Temporary adjustments to working arrangements.
+- Assistance with physically demanding activities.
+- Reasonable scheduling flexibility for follow-up appointments.
+
+FinFlow's AI assistant must not diagnose medical conditions or independently determine an employee's fitness to return to work.
+
+---
+
+## 5. Official Duty (OD)
+
+### 5.1 Purpose
+
+Official Duty applies when an employee performs authorized company-related work outside their regular workplace.
+
+Examples include:
+
+- Attending an official meeting at another office.
+- Participating in client or business-partner meetings.
+- Attending company-approved training or workshops.
+- Visiting another company branch.
+- Representing the organization at an approved professional event.
+
+### 5.2 Entitlement
+
+Approved Official Duty is considered working time rather than personal leave.
+
+Therefore, Official Duty must not be deducted from Casual Leave or Medical Leave balances.
+
+There is no fixed annual OD entitlement. Each request is evaluated according to its legitimate business purpose and managerial authorization.
+
+### 5.3 Application Requirements
+
+Employees should submit the following information through FinFlow:
+
+- Start date and end date.
+- Purpose of the official visit.
+- Meeting location or destination.
+- Relevant organization, client or event details, where applicable.
+
+Official Duty should ordinarily receive managerial authorization before the employee attends the external activity.
+
+### 5.4 Supporting Documents
+
+Employees should submit relevant Official Duty supporting documents physically to HR or the designated office administrator when they return to their regular workplace.
+
+Depending on the activity, these may include:
+
+- Meeting invitation or official communication.
+- Attendance confirmation.
+- Training or participation certificate.
+- Visit authorization.
+- Relevant meeting record or acknowledgement.
+
+If a document was not issued by the host organization, the employee may provide a reasonable alternative explanation or confirmation.
+
+---
+
+## 6. Physical Document Submission Policy
+
+FinFlow follows a physical document verification process for all three categories.
+
+Employees are not required to upload supporting documents digitally when submitting their initial request.
+
+Where supporting documents are applicable, they should be submitted in person to HR or the designated office administrator within three working days of returning to the regular workplace.
+
+| Category | Physical document requirement |
+|---|---|
+| Casual Leave | Optional, unless reasonably requested for a specific case |
+| Medical Leave | Encouraged; expected for absences exceeding two consecutive days, where obtainable |
+| Official Duty | Required where relevant documentation is issued or available |
+
+HR is responsible for verifying submitted documents and recording the verification status.
+
+Documents containing sensitive personal or medical information must be stored securely with restricted access.
+
+Failure to produce a document that was never issued or could not reasonably be obtained should be reviewed individually rather than treated as automatic misconduct.
+
+---
+
+## 7. Weekends and Public Holidays
+
+The company maintains an official holiday calendar published by HR.
+
+Employees are entitled to 12 designated public holidays annually, according to the applicable company calendar.
+
+For Casual and Medical Leave, only scheduled working days falling within the approved leave period will normally be deducted from the employee's leave balance.
+
+Official public holidays and scheduled weekly rest days are not deducted separately as leave days.
+
+Official Duty performed on a non-working day must receive appropriate managerial authorization. Any compensatory arrangements are subject to applicable company rules.
+
+FinFlow must refer to the official company holiday calendar rather than assume that every regional festival is a company holiday.
+
+---
+
+## 8. Leave Approval Workflow
+
+All leave and Official Duty requests must be submitted through the FinFlow portal.
+
+The process is:
+
+1. Employee submits a request.
+2. FinFlow retrieves the relevant company policy.
+3. The RAG assistant generates a policy-based advisory.
+4. The reporting manager receives an email containing the request details and advisory.
+5. The manager reviews the request and makes the final decision.
+6. FinFlow records the decision and notifies the employee by email.
+
+Reporting managers should ordinarily approve or reject requests within two working days.
+
+### Approval
+
+The manager may provide an optional comment.
+
+Example: "Approved. Please complete the pending handover before your leave."
+
+### Rejection
+
+A rejection must include a meaningful reason.
+
+Example: "The requested five consecutive Casual Leave days exceed the standard three-day limit. Please revise the dates or discuss an alternative arrangement."
+
+FinFlow must not permit a blank rejection comment.
+
+---
+
+## 9. Emergency and Exceptional Requests
+
+Unexpected illness, family emergencies and other exceptional circumstances must be assessed sensitively.
+
+Employees should notify their manager as soon as reasonably possible.
+
+Where ordinary policy conditions cannot be satisfied because of a genuine emergency, the reporting manager may refer the request to HR for further consideration.
+
+Employees should not be automatically penalized for circumstances beyond their reasonable control.
+
+---
+
+## 10. Responsibilities
+
+**Employee**
+
+- Select the correct leave category.
+- Provide accurate dates and a reasonable explanation.
+- Inform the manager of urgent circumstances.
+- Submit applicable supporting documents in person after returning to the office.
+
+**Reporting Manager**
+
+- Review the request and RAG advisory.
+- Consider the employee's circumstances and applicable policy.
+- Approve or reject the request.
+- Provide a mandatory explanation when rejecting a request.
+
+**HR Department**
+
+- Maintain leave balances and the official holiday calendar.
+- Verify applicable physical documents.
+- Protect confidential employee information.
+- Resolve exceptional policy matters.
+
+**FinFlow RAG Assistant**
+
+- Retrieve relevant policy information.
+- Evaluate the request against available policy context.
+- Identify confirmed policy violations or missing information.
+- Provide a concise recommendation to the manager.
+- Never independently approve or reject a request.
+
+---
+
+## 11. Final Decision and Recordkeeping
+
+The reporting manager's confirmed decision is recorded in FinFlow.
+
+Approved Casual and Medical Leave requests result in the applicable leave balance being updated.
+
+Approved Official Duty requests do not reduce personal leave balances.
+
+Employees receive a formal email communicating the final decision and any manager comment.
+
+FinFlow retains the request, policy advisory, manager decision, comment and relevant timestamps for administrative review.
+
+**End of Policy — Version 1.0**

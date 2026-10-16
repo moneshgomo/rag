@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Razorpay Payment</title>
+
+    <!-- Razorpay Checkout -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 6px;
+            background: #2453d4;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d43ad;
+        }
+
+        button:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .order-card {
+            margin-top: 25px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .success {
+            margin-top: 25px;
+            color: #087f3f;
+            font-weight: bold;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .row:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #444;
+        }
+
+        .value {
+            text-align: right;
+            word-break: break-word;
+        }
+
+        .error {
+            margin-top: 20px;
+            padding: 12px;
+            background: #fff0f0;
+            color: #c62828;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Razorpay Payment</h1>
+
+    <form id="paymentForm">
+
+        <label for="amount">Amount (₹)</label>
+
+        <input
+                type="number"
+                id="amount"
+                value="100"
+                min="1"
+                required
+        >
+
+        <label for="currency">Currency</label>
+
+        <select id="currency">
+            <option value="INR">INR</option>
+        </select>
+
+        <button type="submit" id="payButton">
+            Create Order & Pay
+        </button>
+
+    </form>
+
+    <div id="result"></div>
+
+</div>
+
+
+<script>
+
+    const paymentForm = document.getElementById("paymentForm");
+    const payButton = document.getElementById("payButton");
+    const result = document.getElementById("result");
+
+
+    paymentForm.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        result.innerHTML = "";
+
+        const amountInRupees =
+            Number(document.getElementById("amount").value);
+
+        const currency =
+            document.getElementById("currency").value;
+
+
+        /*
+         * Razorpay expects amount in paise.
+         *
+         * Example:
+         *
+         * ₹100 × 100 = 10000 paise
+         */
+
+        const amountInPaise = amountInRupees * 100;
+
+
+        payButton.disabled = true;
+        payButton.innerText = "Creating Order...";
+
+
+        try {
+
+            /*
+             * STEP 1
+             *
+             * Create Razorpay Order through
+             * our Spring Boot backend.
+             */
+
+            const response = await fetch(
+                `http://localhost:8080/pay/order?amount=${amountInPaise}&currency=${currency}`,
+                {
+                    method: "POST"
+                }
+            );
+
+
+            if (!response.ok) {
+                throw new Error("Failed to create order");
+            }
+
+
+            /*
+             * Backend returns the Razorpay Order
+             */
+
+            const orderText = await response.text();
+
+            const order = JSON.parse(orderText);
+
+
+            console.log("Created Order:", order);
+
+
+            /*
+             * Display Order
+             */
+
+            result.innerHTML = `
+
+                <div class="success">
+                    ✓ Order Created
+                </div>
+
+                <div class="order-card">
+
+                    <div class="row">
+                        <span class="label">Order ID</span>
+                        <span class="value">
+                            ${order.id}
+                        </span>
+                    </div>
+
+                    <div class="row">
+                        <span class="label">Amount</span>
+                        <span class="value">
+                            ₹${order.amount / 100}
+                        </span>
+                    </div>
+
+                    <div class="row">
+                        <span class="label">Currency</span>
+                        <span class="value">
+                            ${order.currency}
+                        </span>
+                    </div>
+
+                    <div class="row">
+                        <span class="label">Status</span>
+                        <span class="value">
+                            ${order.status}
+                        </span>
+                    </div>
+
+                </div>
+            `;
+
+
+            /*
+             * STEP 2
+             *
+             * Open Razorpay Checkout
+             */
+
+            const options = {
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * Use your Razorpay TEST KEY ID here.
+                 *
+                 * Example:
+                 *
+                 * rzp_test_xxxxxxxxx
+                 */
+
+                key: "rzp_test_TjVo10RBI3W8go",
+
+                amount: order.amount,
+
+                currency: order.currency,
+
+                order_id: order.id,
+
+                name: "My Application",
+
+                description: "Test Payment",
+
+
+                /*
+                 * This runs after a successful
+                 * Razorpay Checkout payment.
+                 */
+
+                handler: function (response) {
+
+                    console.log(
+                        "Payment ID:",
+                        response.razorpay_payment_id
+                    );
+
+                    console.log(
+                        "Order ID:",
+                        response.razorpay_order_id
+                    );
+
+                    console.log(
+                        "Signature:",
+                        response.razorpay_signature
+                    );
+
+
+                    result.innerHTML += `
+
+                        <div class="success">
+
+                            ✓ Payment Completed
+
+                            <br><br>
+
+                            Payment ID:
+                            ${response.razorpay_payment_id}
+
+                            <br><br>
+
+                            Order ID:
+                            ${response.razorpay_order_id}
+
+                        </div>
+
+                    `;
+
+                },
+
+
+                theme: {
+                    color: "#2453d4"
+                },
+
+
+                modal: {
+
+                    ondismiss: function () {
+
+                        console.log(
+                            "Payment window closed"
+                        );
+
+                    }
+
+                }
+
+            };
+
+
+            /*
+             * Create Razorpay Checkout
+             */
+
+            const razorpay = new Razorpay(options);
+
+
+            /*
+             * Handle payment failure
+             */
+
+            razorpay.on(
+                "payment.failed",
+                function (response) {
+
+                    console.error(
+                        "Payment failed:",
+                        response.error
+                    );
+
+                    result.innerHTML += `
+
+                        <div class="error">
+
+                            Payment Failed
+
+                            <br><br>
+
+                            ${response.error.description}
+
+                        </div>
+
+                    `;
+
+                }
+            );
+
+
+            /*
+             * STEP 3
+             *
+             * Open Razorpay Checkout
+             */
+
+            razorpay.open();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            result.innerHTML = `
+
+                <div class="error">
+                    ${error.message}
+                </div>
+
+            `;
+
+        } finally {
+
+            payButton.disabled = false;
+            payButton.innerText = "Create Order & Pay";
+
+        }
+
+    });
+
+</script>
+
+</body>
+</html>

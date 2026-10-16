@@ -1,0 +1,60 @@
+package com.gomo.rag.mode;
+
+import java.math.BigDecimal;
+
+public class Reimbursement {
+
+    private BigDecimal amount;
+    private String currency;
+    private String billContext;
+    private String reason;
+    private String tlName;
+    private String employeeName;
+    private String teamName;
+
+    public Reimbursement(
+            BigDecimal amount,
+            String currency,
+            String billContext,
+            String reason,
+            String tlName,
+            String employeeName,
+            String teamName
+    ) {
+        this.amount = amount;
+        this.currency = currency;
+        this.billContext = billContext;
+        this.reason = reason;
+        this.tlName = tlName;
+        this.employeeName = employeeName;
+        this.teamName = teamName;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public String getBillContext() {
+        return billContext;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public String getTlName() {
+        return tlName;
+    }
+
+    public String getEmployeeName() {
+        return employeeName;
+    }
+
+    public String getTeamName() {
+        return teamName;
+    }
+}
