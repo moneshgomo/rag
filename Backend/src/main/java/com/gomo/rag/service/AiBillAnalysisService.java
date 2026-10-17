@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 @Service
-public class AiBillAnalysisService {
+public class AiBillAnalysisService {  // not reviewed
 
     @Value("${groq.api-key}")
     private String apiKey;

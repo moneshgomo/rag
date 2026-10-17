@@ -5,6 +5,7 @@ import com.gomo.rag.dto.LeaveBalanceResponse;
 import com.gomo.rag.dto.LeaveResponse;
 import com.gomo.rag.dto.LeaveSubmitRequest;
 import com.gomo.rag.service.LeaveService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;

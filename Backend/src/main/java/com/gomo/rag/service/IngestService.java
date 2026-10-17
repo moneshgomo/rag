@@ -29,7 +29,8 @@ public class IngestService {
     }
 
     public synchronized int ingestLeavePolicy() throws IOException {
-        log.info("[IngestService] Starting controlled leave policy ingestion...");
+        long startTime = System.currentTimeMillis();
+        log.info("[IngestService] Starting fast local leave policy ingestion...");
 
         String text = new ClassPathResource("docs/leave-policy.txt")
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -54,6 +55,11 @@ public class IngestService {
             chunks.add(new Document(docId, content, metadata));
         }
 
+        if (chunks.isEmpty()) {
+            log.warn("[IngestService] No valid chunks extracted. Aborting ingestion.");
+            return 0;
+        }
+
         // 1. Back up existing store file if it exists
         if (VectorStoreConfig.STORE_FILE.exists()) {
             File backup = new File(VectorStoreConfig.STORE_FILE.getParentFile(),
@@ -66,52 +72,22 @@ public class IngestService {
             }
         }
 
-        // 2. Clear previous entries in in-memory store so vectors from older models or duplicate chunks do not coexist
+        // 2. Clear previous entries in in-memory store
         clearStore((SimpleVectorStore) vectorStore);
 
-        // 3. Add chunks with rate-limit throttling (OpenRouter free tier allows 20 requests/minute)
-        // With ~11 chunks and a 3.2-second pause between requests, we stay strictly below the 20 RPM ceiling.
-        int storedCount = 0;
-        for (int i = 0; i < chunks.size(); i++) {
-            Document chunk = chunks.get(i);
-            int attempt = 0;
-            boolean success = false;
-            while (!success && attempt < 3) {
-                attempt++;
-                try {
-                    log.info("[IngestService] Ingesting chunk {}/{} (attempt {})...", (i + 1), chunks.size(), attempt);
-                    vectorStore.add(List.of(chunk));
-                    storedCount++;
-                    success = true;
-                    // Rate-limit throttle: pause 3.2 seconds between chunks to avoid 429
-                    if (i < chunks.size() - 1) {
-                        Thread.sleep(3200);
-                    }
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    throw new RuntimeException("Ingestion interrupted", ie);
-                } catch (Exception ex) {
-                    log.warn("[IngestService] Failed chunk {}/{} on attempt {}: {}", (i + 1), chunks.size(), attempt, ex.getMessage());
-                    if (attempt >= 3) {
-                        throw new RuntimeException("Ingestion failed after 3 attempts on chunk " + (i + 1) + ": " + ex.getMessage(), ex);
-                    }
-                    try {
-                        log.info("[IngestService] Rate limit backoff: waiting 8 seconds before retry...");
-                        Thread.sleep(8000);
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        throw new RuntimeException("Ingestion interrupted during retry backoff", ie);
-                    }
-                }
-            }
-        }
+        // 3. Low-Latency Local Batch Processing
+        // No loop, no network calls, no Thread.sleep(). The entire collection is embedded inside the JVM using your CPU.
+        log.info("[IngestService] Generating local embeddings for all {} chunks simultaneously...", chunks.size());
+        vectorStore.add(chunks);
 
         // 4. Save updated store to disk
         ((SimpleVectorStore) vectorStore).save(VectorStoreConfig.STORE_FILE);
-        log.info("[IngestService] Ingestion completed successfully. {} chunks persisted to {}",
-                storedCount, VectorStoreConfig.STORE_FILE.getAbsolutePath());
 
-        return storedCount;
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("[IngestService] Ingestion completed successfully in {} ms. {} chunks persisted to {}",
+                duration, chunks.size(), VectorStoreConfig.STORE_FILE.getAbsolutePath());
+
+        return chunks.size();
     }
 
     private void clearStore(SimpleVectorStore store) {
@@ -132,7 +108,6 @@ public class IngestService {
     }
 
     private List<String> splitIntoPolicySections(String text) {
-        // Split on Markdown H2 headers "## "
         String[] raw = text.split("(?m)(?=^## )");
         List<String> sections = new ArrayList<>();
         for (String s : raw) {
@@ -144,4 +119,3 @@ public class IngestService {
         return sections;
     }
 }
-
