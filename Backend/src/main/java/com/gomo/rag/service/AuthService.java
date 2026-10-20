@@ -12,6 +12,7 @@ import com.gomo.rag.repository.LeaveBalanceRepository;
 import com.gomo.rag.repository.TeamRepository;
 import com.gomo.rag.repository.UserRepository;
 import com.gomo.rag.security.JwtUtil;
+import com.gomo.rag.exception.PasswordChangeRequiredException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -75,7 +76,6 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        // Initialize Leave Balance for Employee/Manager
         int currentYear = LocalDate.now().getYear();
         LeaveBalance balance = LeaveBalance.builder()
                 .employee(savedUser)
@@ -107,6 +107,11 @@ public class AuthService {
             throw new BadCredentialsException("User account is disabled");
         }
 
+        if (user.isPasswordChangeRequired()) {
+            throw new PasswordChangeRequiredException(
+                    "Password setup required. Please use the link sent to your email to set your permanent password before logging in.");
+        }
+
         if (!passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
             throw new BadCredentialsException("Invalid email or password");
         }
@@ -115,7 +120,9 @@ public class AuthService {
                 .token(token)
                 .id(user.getId())
                 .name(user.getName())
+                .email(user.getEmail())
                 .role(user.getRole())
+                .passwordChangeRequired(user.isPasswordChangeRequired())
                 .build();
     }
 

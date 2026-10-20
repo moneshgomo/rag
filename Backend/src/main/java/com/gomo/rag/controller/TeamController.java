@@ -33,6 +33,12 @@ public class TeamController {
         return ResponseEntity.ok(teamService.listTeams());
     }
 
+    @GetMapping("/unassigned-employees")
+    @PreAuthorize("hasAnyRole('MANAGER', 'SUPER_ADMIN')")
+    public ResponseEntity<List<UserResponse>> getUnassignedEmployees(@RequestParam(required = false) String email) {
+        return ResponseEntity.ok(teamService.getUnassignedEmployees(email));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<TeamResponse> getTeam(@PathVariable Long id) {
         return ResponseEntity.ok(teamService.getTeam(id));

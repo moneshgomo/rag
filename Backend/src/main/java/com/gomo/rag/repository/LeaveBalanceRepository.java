@@ -16,8 +16,12 @@ import java.util.Optional;
 @Repository
 public interface LeaveBalanceRepository extends JpaRepository<LeaveBalance, Long> {
 
-    @Query(value = "SELECT * FROM leave_balance WHERE employee_id = :employeeId AND year = :year LIMIT 1",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, employee_id, year, total_days, used_days, remaining_days, updated_at
+        FROM leave_balance
+        WHERE employee_id = :employeeId AND year = :year
+        LIMIT 1
+        """, nativeQuery = true)
     Optional<LeaveBalance> findByEmployeeIdAndYear(@Param("employeeId") Long employeeId,
                                                     @Param("year") int year);
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import finflowLogo from '../../assets/image.png';
 import {
   LayoutDashboard,
   Users,
@@ -67,37 +68,23 @@ export const Sidebar = ({ isOpen, onClose }) => {
         {/* Workspace Brand Header */}
         <div
           style={{
-            padding: '16px 20px',
+            padding: '14px 18px',
             borderBottom: '1px solid var(--color-border-subtle)',
             display: 'flex',
             alignItems: 'center',
-            gap: '10px',
+            backgroundColor: '#FFFFFF',
           }}
         >
-          <div
+          <img
+            src={finflowLogo}
+            alt="FinFlow - Finance & HR Policy Assistant"
             style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '6px',
-              backgroundColor: 'var(--color-primary)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#FFFFFF',
-              fontWeight: 700,
-              fontSize: '14px',
+              height: '36px',
+              maxWidth: '100%',
+              objectFit: 'contain',
+              display: 'block',
             }}
-          >
-            F
-          </div>
-          <div>
-            <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-text-primary)' }}>
-              FinFlow
-            </div>
-            <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
-              Workspace
-            </div>
-          </div>
+          />
         </div>
 
         {/* Navigation Links */}

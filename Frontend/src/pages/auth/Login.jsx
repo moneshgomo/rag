@@ -56,7 +56,7 @@ export const Login = () => {
     try {
       const result = await login(formData.email.trim(), formData.password);
       
-      // Role-based redirection strictly based on backend response
+     
       if (result.role === 'SUPER_ADMIN') {
         navigate('/admin/dashboard', { replace: true });
       } else if (result.role === 'MANAGER') {
@@ -74,7 +74,7 @@ export const Login = () => {
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Sign in to your FinFlow workspace."
+      subtitle="Sign in to your workspace."
     >
       {isExpired && (
         <Alert
@@ -153,6 +153,15 @@ export const Login = () => {
         >
           Sign up
         </Link>
+        <div style={{ marginTop: '8px' }}>
+          First time onboarding?{' '}
+          <Link
+            to="/setup-password"
+            style={{ fontWeight: 600, color: 'var(--color-primary)' }}
+          >
+            Set up password
+          </Link>
+        </div>
       </div>
     </AuthLayout>
   );

@@ -21,5 +21,6 @@ public class UserResponse {
     private Long teamId;
     private String teamName;
     private boolean active;
+    private boolean passwordChangeRequired;
     private LocalDateTime createdAt;
 }

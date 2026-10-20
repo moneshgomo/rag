@@ -19,8 +19,12 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query(value = "SELECT * FROM users WHERE email = :email LIMIT 1",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, name, email, contact_number, password_hash, role, team_id, is_active, password_change_required, created_at, updated_at
+        FROM users
+        WHERE email = :email
+        LIMIT 1
+        """, nativeQuery = true)
     Optional<User> findByEmail(@Param("email") String email);
 
 
@@ -69,11 +73,20 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<EmployeesList> findEmployeesAllByRole(@Param("role") String role);
 
 
-    @Query(value = "SELECT * FROM users WHERE role = :role ORDER BY name", nativeQuery = true)
+    @Query(value = """
+        SELECT id, name, email, contact_number, password_hash, role, team_id, is_active, password_change_required, created_at, updated_at
+        FROM users
+        WHERE role = :role
+        ORDER BY name
+        """, nativeQuery = true)
     List<User> findAllByRole(@Param("role") String role);
 
-    @Query(value = "SELECT * FROM users WHERE team_id = :teamId ORDER BY name",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, name, email, contact_number, password_hash, role, team_id, is_active, password_change_required, created_at, updated_at
+        FROM users
+        WHERE team_id = :teamId
+        ORDER BY name
+        """, nativeQuery = true)
     List<User> findAllByTeamId(@Param("teamId") Long teamId);
 
 
@@ -104,13 +117,24 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(@Param("email") String email);
 
     @Query(value = """
- SELECT u.*
-            FROM   users u
-            JOIN   teams t ON t.id = u.team_id
-            WHERE  t.manager_id = :managerId
-              AND  u.role = 'EMPLOYEE'
-            ORDER  BY u.name
-            """, nativeQuery = true)
+        SELECT 
+            u.id,
+            u.name,
+            u.email,
+            u.contact_number,
+            u.password_hash,
+            u.role,
+            u.team_id,
+            u.is_active,
+            u.password_change_required,
+            u.created_at,
+            u.updated_at
+        FROM users u
+        JOIN teams t ON t.id = u.team_id
+        WHERE t.manager_id = :managerId
+          AND u.role = 'EMPLOYEE'
+        ORDER BY u.name
+        """, nativeQuery = true)
     List<User> findEmployeesByManagerId(@Param("managerId") Long managerId);
 
     @Modifying
@@ -122,4 +146,21 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "UPDATE users SET team_id = :teamId, updated_at = NOW() WHERE id = :id",
             nativeQuery = true)
     void updateTeam(@Param("id") Long id, @Param("teamId") Long teamId);
+
+    @Query(value = """
+        SELECT id, name, email, contact_number, password_hash, role, team_id, is_active, password_change_required, created_at, updated_at
+        FROM users
+        WHERE role = 'EMPLOYEE' AND team_id IS NULL AND is_active = true
+        ORDER BY name ASC
+        """, nativeQuery = true)
+    List<User> findUnassignedEmployees();
+
+    @Query(value = """
+        SELECT id, name, email, contact_number, password_hash, role, team_id, is_active, password_change_required, created_at, updated_at
+        FROM users
+        WHERE role = 'EMPLOYEE' AND team_id IS NULL AND is_active = true
+          AND LOWER(email) LIKE LOWER(CONCAT('%', :email, '%'))
+        ORDER BY name ASC
+        """, nativeQuery = true)
+    List<User> searchUnassignedEmployeesByEmail(@Param("email") String email);
 }

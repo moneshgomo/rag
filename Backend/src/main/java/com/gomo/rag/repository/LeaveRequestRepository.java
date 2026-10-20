@@ -36,17 +36,29 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
     """, nativeQuery = true)
     List<Object[]> getLeaveRequestBy(@Param("employeeId") Long employeeId);
 
-    @Query(value = "SELECT * FROM leave_requests WHERE manager_id = :managerId ORDER BY created_at DESC",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, employee_id, manager_id, leave_type, start_date, end_date, days, reason, status, rag_decision, manager_comment, created_at, updated_at
+        FROM leave_requests
+        WHERE manager_id = :managerId
+        ORDER BY created_at DESC
+        """, nativeQuery = true)
     List<LeaveRequest> findAllByManagerId(@Param("managerId") Long managerId);
 
-    @Query(value = "SELECT * FROM leave_requests WHERE manager_id = :managerId AND status = :status ORDER BY created_at DESC",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, employee_id, manager_id, leave_type, start_date, end_date, days, reason, status, rag_decision, manager_comment, created_at, updated_at
+        FROM leave_requests
+        WHERE manager_id = :managerId AND status = :status
+        ORDER BY created_at DESC
+        """, nativeQuery = true)
     List<LeaveRequest> findAllByManagerIdAndStatus(@Param("managerId") Long managerId,
                                                     @Param("status") String status);
 
-    @Query(value = "SELECT * FROM leave_requests WHERE manager_id = :managerId AND status = 'PENDING' ORDER BY created_at ASC",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, employee_id, manager_id, leave_type, start_date, end_date, days, reason, status, rag_decision, manager_comment, created_at, updated_at
+        FROM leave_requests
+        WHERE manager_id = :managerId AND status = 'PENDING'
+        ORDER BY created_at ASC
+        """, nativeQuery = true)
     List<LeaveRequest> findPendingByManagerId(@Param("managerId") Long managerId);
 
     @Modifying

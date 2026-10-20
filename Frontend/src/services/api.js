@@ -27,11 +27,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Do not redirect if we are already on login/signup page or doing login
-      const isAuthPath = window.location.pathname === '/login' || window.location.pathname === '/signup';
-      const isLoginRequest = error.config && error.config.url && error.config.url.includes('/api/auth/login');
+      // Do not redirect if we are already on an auth page or making an auth request
+      const isAuthPath = window.location.pathname === '/login' || 
+                         window.location.pathname === '/signup' || 
+                         window.location.pathname === '/setup-password';
+      const isAuthRequest = error.config && error.config.url && error.config.url.includes('/api/auth/');
       
-      if (!isAuthPath && !isLoginRequest) {
+      if (!isAuthPath && !isAuthRequest) {
         localStorage.removeItem('finflow_token');
         localStorage.removeItem('finflow_user');
         window.location.href = '/login?expired=true';

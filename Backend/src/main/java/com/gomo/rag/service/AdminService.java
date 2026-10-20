@@ -29,15 +29,18 @@ public class AdminService {
     private final TeamRepository teamRepository;
     private final LeaveBalanceRepository leaveBalanceRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordSetupService passwordSetupService;
 
     public AdminService(UserRepository userRepository,
                         TeamRepository teamRepository,
                         LeaveBalanceRepository leaveBalanceRepository,
-                        PasswordEncoder passwordEncoder) {
+                        PasswordEncoder passwordEncoder,
+                        PasswordSetupService passwordSetupService) {
         this.userRepository = userRepository;
         this.teamRepository = teamRepository;
         this.leaveBalanceRepository = leaveBalanceRepository;
         this.passwordEncoder = passwordEncoder;
+        this.passwordSetupService = passwordSetupService;
     }
 
     @Transactional
@@ -62,6 +65,7 @@ public class AdminService {
                 .role(Role.MANAGER)
                 .team(team)
                 .active(true)
+                .passwordChangeRequired(true)
                 .build();
 
         User saved = userRepository.save(manager);
@@ -81,6 +85,9 @@ public class AdminService {
                 .remainingDays(20)
                 .build();
         leaveBalanceRepository.save(balance);
+
+        // Generate secure setup token and send onboarding email
+        passwordSetupService.createAndSendSetupToken(saved, req.getPassword());
 
         return mapToResponse(saved);
     }
@@ -113,6 +120,8 @@ public class AdminService {
 
         Role role = req.getRole() != null ? req.getRole() : Role.EMPLOYEE;
 
+        boolean changeRequired = role == Role.MANAGER || role == Role.EMPLOYEE;
+
         User user = User.builder()
                 .name(req.getName())
                 .email(req.getEmail())
@@ -121,6 +130,7 @@ public class AdminService {
                 .role(role)
                 .team(team)
                 .active(true)
+                .passwordChangeRequired(changeRequired)
                 .build();
 
         User saved = userRepository.save(user);
@@ -135,9 +145,14 @@ public class AdminService {
                 .build();
         leaveBalanceRepository.save(balance);
 
+        if (changeRequired) {
+            passwordSetupService.createAndSendSetupToken(saved, req.getPassword());
+        }
+
         return mapToResponse(saved);
     }
 
+    @Transactional
     public List<UserResponse> listUsers(String role) {
         if (role != null && !role.isBlank()) {
             return userRepository.findAllByRole(role.toUpperCase()).stream()
@@ -159,6 +174,8 @@ public class AdminService {
         return mapToResponse(saved);
     }
 
+
+
     private UserResponse mapToResponse(User user) {
         return getUserResponse(user);
     }
@@ -173,6 +190,7 @@ public class AdminService {
                 .teamId(user.getTeam() != null ? user.getTeam().getId() : null)
                 .teamName(user.getTeam() != null ? user.getTeam().getName() : null)
                 .active(user.isActive())
+                .passwordChangeRequired(user.isPasswordChangeRequired())
                 .createdAt(user.getCreatedAt())
                 .build();
     }

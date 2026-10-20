@@ -54,6 +54,19 @@ public class JwtFilter extends OncePerRequestFilter {
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
+            if (!userDetails.isCredentialsNonExpired()) {
+                String uri = request.getRequestURI();
+                if (!uri.startsWith("/api/auth/") && !uri.startsWith("/actuator/") && !uri.startsWith("/api/token/")) {
+                    log.warn("[JWT] User {} has password setup required. Blocking access to {}", email, uri);
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json");
+                    response.getWriter().write("""
+                        {"timestamp":"%s","status":403,"error":"Forbidden","message":"Password change required. You must complete your initial password setup before accessing the application.","path":"%s"}
+                    """.formatted(java.time.LocalDateTime.now(), uri));
+                    return;
+                }
+            }
+
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(
                             userDetails,

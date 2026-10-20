@@ -9,6 +9,7 @@ import DashboardLayout from '../layouts/DashboardLayout';
 // Pages
 import Login from '../pages/auth/Login';
 import Signup from '../pages/auth/Signup';
+import SetupPassword from '../pages/auth/SetupPassword';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import ManagerDashboard from '../pages/manager/ManagerDashboard';
 import EmployeeDashboard from '../pages/employee/EmployeeDashboard';
@@ -50,6 +51,7 @@ export const AppRoutes = () => {
           )
         }
       />
+      <Route path="/setup-password" element={<SetupPassword />} />
 
       {/* Public Email Action Token Route */}
       <Route path="/leave/action/:token" element={<EmailLeaveAction />} />
