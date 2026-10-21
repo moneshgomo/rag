@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -180,21 +179,7 @@ public class EmailService {
 
                 <div style="text-align: center; margin: 28px 0;">
 
-                    <a href="%s"
-                       style="display: inline-block; background: #16a34a;
-                              color: white; padding: 12px 20px;
-                              text-decoration: none; border-radius: 6px;
-                              font-weight: bold; margin: 5px;">
-                        Approve Leave
-                    </a>
-
-                    <a href="%s"
-                       style="display: inline-block; background: #dc2626;
-                              color: white; padding: 12px 20px;
-                              text-decoration: none; border-radius: 6px;
-                              font-weight: bold; margin: 5px;">
-                        Reject Leave
-                    </a>
+           
 
                 </div>
 
@@ -213,8 +198,6 @@ public class EmailService {
                 leave.getRagDecision() != null
                         ? leave.getRagDecision()
                         : "Standard policy limits apply.",
-                approveUrl,
-                rejectUrl,
                 tokenExpiryHours
         );
 
@@ -263,9 +246,7 @@ public class EmailService {
         sendHtmlEmail(manager.getEmail(), subject, html);
     }
 
-    /**
-     * Sends Notification to Finance team when a claim is verified by manager.
-     */
+
     public void sendReimbursementFinanceNotification(User financeUser, ReimbursementRequest req) {
         User employee = req.getEmployee();
         String subject = "[Ready for Payment] Reimbursement Verified for " + employee.getName();
@@ -424,12 +405,6 @@ public class EmailService {
         }
     }
 
-    /**
-     * Sends a responsive, professional onboarding email to newly created MANAGER or EMPLOYEE users.
-     * Contains welcome message, registered email, temporary password, and secure single-use setup link.
-     */
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendOnboardingEmail(User user, String temporaryPassword, String rawSetupToken) {
         String setupUrl = frontendUrl + "/setup-password?token=" + rawSetupToken;
         String subject = "Welcome to FinFlow – Set Up Your Account";

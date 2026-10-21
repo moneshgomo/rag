@@ -11,10 +11,8 @@ import com.gomo.rag.repository.UserRepository;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
@@ -30,7 +28,6 @@ import java.util.UUID;
  * token validation, password setup execution, and link regeneration.
  */
 @Service
-@Aspect
 public class PasswordSetupService {
 
     private static final Logger log = LoggerFactory.getLogger(PasswordSetupService.class);
@@ -40,8 +37,7 @@ public class PasswordSetupService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    @Value("${app.token.expiry-hours:24}")
-    private int tokenExpiryHours;
+    private final int TOKEN_EXPIRY = 24;
 
     public PasswordSetupService(PasswordSetupTokenRepository tokenRepository,
                                 UserRepository userRepository,
@@ -54,14 +50,12 @@ public class PasswordSetupService {
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public String createAndSendSetupToken(User user, String rawTemporaryPassword) {
         log.info("[PasswordSetupService] Generating setup token for user={}", user.getEmail());
 
-        // Invalidate previous active setup tokens for this user
         tokenRepository.invalidateAllActiveTokensForUser(user.getId());
 
-        // Generate 64-character random cryptographically secure token
         String rawToken = UUID.randomUUID().toString().replace("-", "")
                 + UUID.randomUUID().toString().replace("-", "");
         String tokenHash = hashToken(rawToken);
@@ -69,13 +63,12 @@ public class PasswordSetupService {
         PasswordSetupToken tokenEntity = PasswordSetupToken.builder()
                 .tokenHash(tokenHash)
                 .user(user)
-                .expiresAt(LocalDateTime.now().plusHours(tokenExpiryHours))
+                .expiresAt(LocalDateTime.now().plusHours(TOKEN_EXPIRY))
                 .used(false)
                 .build();
 
         tokenRepository.save(tokenEntity);
 
-        // Send onboarding email with graceful fallback
         try {
             emailService.sendOnboardingEmail(user, rawTemporaryPassword, rawToken);
         } catch (Exception e) {
@@ -85,10 +78,8 @@ public class PasswordSetupService {
         return rawToken;
     }
 
-    /**
-     * Validates whether a given raw token is valid, unexpired, and unused.
-     */
-    @Transactional(readOnly = true)
+
+    @Transactional
     public TokenValidationResponse validateSetupToken(String rawToken) {
         if (rawToken == null || rawToken.isBlank()) {
             return TokenValidationResponse.builder()
@@ -145,11 +136,7 @@ public class PasswordSetupService {
                 .build();
     }
 
-    /**
-     * Executes the permanent password setup.
-     * Validates token, ensures new password differs from temporary password,
-     * updates user credentials, resets password_change_required flag, and consumes token.
-     */
+
     @Transactional
     public UserResponse setupPassword(SetupPasswordRequest req) {
         if (req.getToken() == null || req.getToken().isBlank()) {

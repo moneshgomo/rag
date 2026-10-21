@@ -89,7 +89,6 @@ jwt:
   secret: ${JWT_SECRET}
   expiration-ms: ${JWT_EXPIRATION_MS}
 
-# app.frontend-url
 app:
   base-url: ${APP_BASE_URL}
   frontend-url: ${APP_FRONTEND_URL}

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +44,7 @@ public interface PasswordSetupTokenRepository extends JpaRepository<PasswordSetu
     Optional<PasswordSetupToken> findLatestByUserId(@Param("userId") Long userId);
 
     @Modifying
+    @Transactional
     @Query(value = "UPDATE password_setup_tokens SET used = true, used_at = NOW() WHERE user_id = :userId AND used = false",
             nativeQuery = true)
     void invalidateAllActiveTokensForUser(@Param("userId") Long userId);
