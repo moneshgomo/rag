@@ -19,6 +19,9 @@ import {
   FileText,
   AlertCircle,
   Send,
+  Search,
+  UserCheck,
+  Plus,
 } from 'lucide-react';
 import { formatDate, formatLeaveType, formatRole, getStatusBadgeVariant } from '../../utils/formatters';
 import { extractErrorMessage } from '../../utils/errorHandler';
@@ -33,8 +36,13 @@ export const ManagerDashboard = () => {
   const [apiError, setApiError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
-  // Add Member Modal
+  // Add Member Modal & Unassigned Employees
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+  const [unassignedEmployees, setUnassignedEmployees] = useState([]);
+  const [loadingUnassigned, setLoadingUnassigned] = useState(false);
+  const [emailSearchFilter, setEmailSearchFilter] = useState('');
+  const [addMemberTab, setAddMemberTab] = useState('unassigned'); // 'unassigned' | 'new'
+
   const [memberForm, setMemberForm] = useState({
     name: '',
     email: '',
@@ -133,7 +141,47 @@ export const ManagerDashboard = () => {
     fetchManagerData();
   }, [user]);
 
-  // Handle Add Member to Team
+  // Fetch unassigned employees with optional email filter
+  const fetchUnassignedEmployees = async (emailFilter = '') => {
+    setLoadingUnassigned(true);
+    try {
+      const data = await teamService.getUnassignedEmployees(emailFilter);
+      setUnassignedEmployees(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.warn('Failed to fetch unassigned employees:', err);
+    } finally {
+      setLoadingUnassigned(false);
+    }
+  };
+
+  const handleOpenAddMemberModal = () => {
+    setActionError(null);
+    setEmailSearchFilter('');
+    setAddMemberTab('unassigned');
+    setShowAddMemberModal(true);
+    fetchUnassignedEmployees('');
+  };
+
+  const handleAssignExistingEmployee = async (employee) => {
+    if (!team) return;
+    setActionLoading(true);
+    setActionError(null);
+    try {
+      await teamService.addMemberToTeam(team.id, {
+        userId: employee.id,
+      });
+
+      setSuccessMessage(`Employee ${employee.name} (${employee.email}) assigned to ${team.name} successfully.`);
+      setShowAddMemberModal(false);
+      fetchManagerData();
+    } catch (err) {
+      setActionError(extractErrorMessage(err).message);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Handle Add Member to Team (New Registration)
   const handleAddMember = async (e) => {
     e.preventDefault();
     if (!team) return;
@@ -343,10 +391,7 @@ export const ManagerDashboard = () => {
             <Button
               variant="primary"
               icon={UserPlus}
-              onClick={() => {
-                setActionError(null);
-                setShowAddMemberModal(true);
-              }}
+              onClick={handleOpenAddMemberModal}
             >
               Add Team Member
             </Button>
@@ -441,50 +486,208 @@ export const ManagerDashboard = () => {
         onClose={() => setShowAddMemberModal(false)}
         title={`Add Member to ${team?.name || 'Team'}`}
         footer={
-          <>
+          addMemberTab === 'new' ? (
+            <>
+              <Button variant="secondary" onClick={() => setShowAddMemberModal(false)} disabled={actionLoading}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={handleAddMember} loading={actionLoading}>
+                Register &amp; Send Invite
+              </Button>
+            </>
+          ) : (
             <Button variant="secondary" onClick={() => setShowAddMemberModal(false)} disabled={actionLoading}>
-              Cancel
+              Close
             </Button>
-            <Button variant="primary" onClick={handleAddMember} loading={actionLoading}>
-              Add Member
-            </Button>
-          </>
+          )
         }
       >
         {actionError && <Alert variant="danger" message={actionError} />}
-        <form onSubmit={handleAddMember}>
-          <Input
-            label="Full Name"
-            placeholder="Aravind Dev"
-            value={memberForm.name}
-            onChange={(e) => setMemberForm({ ...memberForm, name: e.target.value })}
-            required
-            autoFocus
-          />
-          <Input
-            label="Work Email"
-            type="email"
-            placeholder="aravind@finflow.com"
-            value={memberForm.email}
-            onChange={(e) => setMemberForm({ ...memberForm, email: e.target.value })}
-            required
-          />
-          <Input
-            label="Contact Number"
-            type="tel"
-            placeholder="+91 9123456789"
-            value={memberForm.contactNumber}
-            onChange={(e) => setMemberForm({ ...memberForm, contactNumber: e.target.value })}
-          />
-          <Input
-            label="Initial Password"
-            type="password"
-            placeholder="••••••••••••"
-            value={memberForm.password}
-            onChange={(e) => setMemberForm({ ...memberForm, password: e.target.value })}
-            required
-          />
-        </form>
+
+        {/* Tab Switcher: Existing Unassigned Employees vs Register New */}
+        <div style={{ display: 'flex', backgroundColor: '#f1f5f9', borderRadius: '8px', padding: '4px', marginBottom: '18px' }}>
+          <button
+            type="button"
+            onClick={() => setAddMemberTab('unassigned')}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              fontSize: '13px',
+              fontWeight: 600,
+              borderRadius: '6px',
+              border: 'none',
+              cursor: 'pointer',
+              backgroundColor: addMemberTab === 'unassigned' ? '#ffffff' : 'transparent',
+              color: addMemberTab === 'unassigned' ? '#0f172a' : '#64748b',
+              boxShadow: addMemberTab === 'unassigned' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            Existing Employees ({unassignedEmployees.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setAddMemberTab('new')}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              fontSize: '13px',
+              fontWeight: 600,
+              borderRadius: '6px',
+              border: 'none',
+              cursor: 'pointer',
+              backgroundColor: addMemberTab === 'new' ? '#ffffff' : 'transparent',
+              color: addMemberTab === 'new' ? '#0f172a' : '#64748b',
+              boxShadow: addMemberTab === 'new' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            + Register New Employee
+          </button>
+        </div>
+
+        {addMemberTab === 'unassigned' ? (
+          <div>
+            {/* Search filter input */}
+            <div style={{ marginBottom: '16px' }}>
+              <Input
+                placeholder="Search unassigned employee by email..."
+                value={emailSearchFilter}
+                onChange={(e) => setEmailSearchFilter(e.target.value)}
+                autoFocus
+              />
+            </div>
+
+            {loadingUnassigned ? (
+              <div style={{ textAlign: 'center', padding: '24px 0', color: '#64748b', fontSize: '13px' }}>
+                Fetching unassigned employees...
+              </div>
+            ) : (
+              <div>
+                {(() => {
+                  const filtered = unassignedEmployees.filter(
+                    (emp) =>
+                      !emailSearchFilter.trim() ||
+                      emp.email?.toLowerCase().includes(emailSearchFilter.trim().toLowerCase()) ||
+                      emp.name?.toLowerCase().includes(emailSearchFilter.trim().toLowerCase())
+                  );
+
+                  if (filtered.length === 0) {
+                    return (
+                      <div
+                        style={{
+                          textAlign: 'center',
+                          padding: '24px 16px',
+                          backgroundColor: '#f8fafc',
+                          borderRadius: '8px',
+                          border: '1px solid #e2e8f0',
+                        }}
+                      >
+                        <Users size={32} style={{ color: '#94a3b8', margin: '0 auto 8px' }} />
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                          No unassigned employees found
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '14px' }}>
+                          {emailSearchFilter
+                            ? `No unassigned employee matches "${emailSearchFilter}".`
+                            : 'All existing employees are already assigned to teams.'}
+                        </div>
+                        <Button size="sm" variant="secondary" onClick={() => setAddMemberTab('new')}>
+                          Register New Employee Instead
+                        </Button>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        maxHeight: '290px',
+                        overflowY: 'auto',
+                        paddingRight: '4px',
+                      }}
+                    >
+                      {filtered.map((emp) => (
+                        <div
+                          key={emp.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '12px 14px',
+                            backgroundColor: '#ffffff',
+                            borderRadius: '8px',
+                            border: '1px solid #e2e8f0',
+                          }}
+                        >
+                          <div>
+                            <div style={{ fontWeight: 600, fontSize: '14px', color: '#0f172a' }}>
+                              {emp.name}
+                            </div>
+                            <div style={{ fontSize: '12px', color: 'var(--color-primary)', fontWeight: 500 }}>
+                              {emp.email}
+                            </div>
+                            {emp.contactNumber && (
+                              <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                                {emp.contactNumber}
+                              </div>
+                            )}
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="primary"
+                            disabled={actionLoading}
+                            onClick={() => handleAssignExistingEmployee(emp)}
+                          >
+                            Add to Team
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
+        ) : (
+          <form onSubmit={handleAddMember}>
+            <Input
+              label="Full Name"
+              placeholder="Aravind Dev"
+              value={memberForm.name}
+              onChange={(e) => setMemberForm({ ...memberForm, name: e.target.value })}
+              required
+              autoFocus
+            />
+            <Input
+              label="Work Email"
+              type="email"
+              placeholder="aravind@finflow.com"
+              value={memberForm.email}
+              onChange={(e) => setMemberForm({ ...memberForm, email: e.target.value })}
+              required
+            />
+            <Input
+              label="Contact Number"
+              type="tel"
+              placeholder="+91 9123456789"
+              value={memberForm.contactNumber}
+              onChange={(e) => setMemberForm({ ...memberForm, contactNumber: e.target.value })}
+            />
+            <Input
+              label="Temporary Password"
+              type="password"
+              placeholder="••••••••••••"
+              value={memberForm.password}
+              onChange={(e) => setMemberForm({ ...memberForm, password: e.target.value })}
+              helper="The employee will receive an onboarding email to replace this with a permanent password"
+              required
+            />
+          </form>
+        )}
       </Modal>
 
       {/* Modal: Approve or Reject Leave */}

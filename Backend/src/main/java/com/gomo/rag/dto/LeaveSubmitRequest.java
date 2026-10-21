@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class LeaveSubmitRequest {
-    private String leaveType; // SICK, CASUAL, ANNUAL, etc.
+    private String leaveType;
     private LocalDate startDate;
     private LocalDate endDate;
     private String reason;

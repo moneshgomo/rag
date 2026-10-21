@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -28,7 +29,7 @@ public class EmailService {
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
-    @Value("${app.base-url:http://localhost:8080}")
+    @Value("${app.frontend-url:${app.base-url:http://localhost:5173}}")
     private String frontendUrl;
 
     @Value("${app.mail.from:noreply@finflow.com}")
@@ -422,4 +423,113 @@ public class EmailService {
                     to, e.getMessage());
         }
     }
+
+    /**
+     * Sends a responsive, professional onboarding email to newly created MANAGER or EMPLOYEE users.
+     * Contains welcome message, registered email, temporary password, and secure single-use setup link.
+     */
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void sendOnboardingEmail(User user, String temporaryPassword, String rawSetupToken) {
+        String setupUrl = frontendUrl + "/setup-password?token=" + rawSetupToken;
+        String subject = "Welcome to FinFlow – Set Up Your Account";
+
+        String roleDisplay = user.getRole() != null ? user.getRole().name() : "User";
+        String safeName = escapeHtml(user.getName() != null ? user.getName() : "Team Member");
+        String safeEmail = escapeHtml(user.getEmail());
+        String safeTempPass = escapeHtml(temporaryPassword);
+
+        String html = """
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Welcome to FinFlow</title>
+              <style>
+                body { margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; }
+                .wrapper { width: 100%%; max-width: 600px; margin: 30px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+                .header { background: linear-gradient(135deg, #0f172a 0%%, #1e293b 100%%); padding: 32px 28px; text-align: center; }
+                .header h1 { margin: 0; font-size: 24px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px; }
+                .header p { margin: 6px 0 0; font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+                .content { padding: 36px 32px; }
+                .greeting { font-size: 18px; font-weight: 600; color: #0f172a; margin-top: 0; margin-bottom: 12px; }
+                .lead-text { font-size: 15px; line-height: 1.6; color: #475569; margin-bottom: 24px; }
+                .credentials-card { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px 24px; margin-bottom: 28px; }
+                .btn-container { text-align: center; margin: 32px 0; }
+                .btn-primary { display: inline-block; background-color: #2563eb; color: #ffffff !important; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; box-shadow: 0 2px 6px rgba(37,99,235,0.3); }
+                .notice-box { background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 4px; font-size: 13px; color: #92400e; margin-bottom: 24px; line-height: 1.5; }
+                .url-fallback { font-size: 12px; color: #64748b; word-break: break-all; margin-top: 20px; line-height: 1.5; }
+                .footer { background-color: #f8fafc; padding: 20px 32px; text-align: center; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; }
+              </style>
+            </head>
+            <body>
+              <div class="wrapper">
+                <div class="header">
+                  <h1>FinFlow</h1>
+                  <p>Account Activation</p>
+                </div>
+                <div class="content">
+                  <h2 class="greeting">Welcome to FinFlow, %s!</h2>
+                  <p class="lead-text">
+                    Your <strong>%s</strong> account has been created on the FinFlow platform.
+                    To start using your account, please complete your first-time password setup using the temporary credentials below.
+                  </p>
+
+                  <div class="credentials-card">
+                    <table style="width: 100%%; border-collapse: collapse;">
+                      <tr>
+                        <td style="padding: 8px 0; color: #64748b; font-size: 14px; font-weight: 500;">Registered Email:</td>
+                        <td style="padding: 8px 0; color: #0f172a; font-size: 14px; font-weight: 600; text-align: right;">%s</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; color: #64748b; font-size: 14px; font-weight: 500;">Temporary Password:</td>
+                        <td style="padding: 8px 0; text-align: right;">
+                          <span style="background-color: #e2e8f0; padding: 4px 10px; border-radius: 4px; font-family: monospace; font-size: 14px; color: #0f172a; font-weight: bold;">%s</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+
+                  <div class="notice-box">
+                    <strong>Important:</strong> You must replace your temporary password with a permanent password before accessing application features. This setup link is single-use and will expire in %d hours.
+                  </div>
+
+                  <div class="btn-container">
+                    <a href="%s" class="btn-primary" style="color: #ffffff;">Set Up Permanent Password</a>
+                  </div>
+
+                  <p class="url-fallback">
+                    If the button above does not work, copy and paste this URL into your browser:<br>
+                    <a href="%s" style="color: #2563eb; text-decoration: underline;">%s</a>
+                  </p>
+                </div>
+                <div class="footer">
+                  FinFlow System &bull; Secure Corporate Workspace &bull; Please do not reply to this email
+                </div>
+              </div>
+            </body>
+            </html>
+            """.formatted(
+                safeName,
+                roleDisplay,
+                safeEmail,
+                safeTempPass,
+                tokenExpiryHours,
+                setupUrl,
+                setupUrl,
+                setupUrl
+        );
+
+        sendHtmlEmail(user.getEmail(), subject, html);
+    }
+
+//    private String escapeHtml(String text) {
+//        if (text == null) return "";
+//        return text.replace("&", "&amp;")
+//                   .replace("<", "&lt;")
+//                   .replace(">", "&gt;")
+//                   .replace("\"", "&quot;")
+//                   .replace("'", "&#39;");
+//    }
 }

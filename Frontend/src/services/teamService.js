@@ -25,6 +25,12 @@ export const teamService = {
     const response = await api.get(`/api/teams/${teamId}/members`);
     return response.data;
   },
+
+  async getUnassignedEmployees(emailFilter = '') {
+    const params = emailFilter ? { email: emailFilter } : {};
+    const response = await api.get('/api/teams/unassigned-employees', { params });
+    return response.data;
+  },
 };
 
 export default teamService;

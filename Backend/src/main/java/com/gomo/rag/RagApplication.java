@@ -8,8 +8,6 @@ public class RagApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(RagApplication.class, args);
-
-		System.out.println();
 	}
 
 }

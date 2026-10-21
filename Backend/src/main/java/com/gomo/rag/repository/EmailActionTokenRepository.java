@@ -16,8 +16,12 @@ import java.util.Optional;
 @Repository
 public interface EmailActionTokenRepository extends JpaRepository<EmailActionToken, Long> {
 
-    @Query(value = "SELECT * FROM email_action_tokens WHERE token = :token LIMIT 1",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, token, request_type, request_id, action, recipient_email, expires_at, used, created_at
+        FROM email_action_tokens
+        WHERE token = :token
+        LIMIT 1
+        """, nativeQuery = true)
     Optional<EmailActionToken> findByToken(@Param("token") String token);
 
     /** Marks a token as used - called immediately after the action is executed. Prevents replay attacks. */

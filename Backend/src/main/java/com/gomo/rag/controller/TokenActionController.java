@@ -16,19 +16,12 @@ public class TokenActionController {
         this.tokenActionService = tokenActionService;
     }
 
-    /**
-     * One-click action endpoint clicked from email inbox.
-     * Returns an HTML confirmation page.
-     */
     @GetMapping(value = "/{token}/action", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> handleActionGet(@PathVariable String token) {
         String htmlResponse = tokenActionService.executeAction(token);
         return ResponseEntity.ok(htmlResponse);
     }
 
-    /**
-     * Programmatic POST action for UI client.
-     */
     @PostMapping(value = "/{token}/action", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> handleActionPost(@PathVariable String token) {
         String htmlResponse = tokenActionService.executeAction(token);

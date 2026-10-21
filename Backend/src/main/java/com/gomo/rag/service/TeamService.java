@@ -13,8 +13,12 @@ import com.gomo.rag.repository.TeamRepository;
 import com.gomo.rag.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -31,18 +35,21 @@ public class TeamService {
     private final UserRepository userRepository;
     private final LeaveBalanceRepository leaveBalanceRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordSetupService passwordSetupService;
 
     public TeamService(TeamRepository teamRepository,
                        UserRepository userRepository,
                        LeaveBalanceRepository leaveBalanceRepository,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       PasswordSetupService passwordSetupService) {
         this.teamRepository = teamRepository;
         this.userRepository = userRepository;
         this.leaveBalanceRepository = leaveBalanceRepository;
         this.passwordEncoder = passwordEncoder;
+        this.passwordSetupService = passwordSetupService;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public TeamResponse createTeam(TeamRequest req) {
         log.info("[TeamService] Creating team: {}", req.getName());
 
@@ -94,12 +101,24 @@ public class TeamService {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("Team not found with ID: " + teamId));
 
+        // Enforce RBAC: Only authorized manager of this team (or SUPER_ADMIN) can create employee accounts
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            String currentEmail = auth.getName();
+            User currentUser = userRepository.findByEmail(currentEmail).orElse(null);
+            if (currentUser != null && currentUser.getRole() == Role.MANAGER) {
+                if (team.getManager() == null || !team.getManager().getId().equals(currentUser.getId())) {
+                    throw new AccessDeniedException("You are not authorized to add members to this team.");
+                }
+            }
+        }
+
         User user;
 
         if (req.getUserId() != null) {
-            user = userRepository.findById(req.getUserId()) // 4
+            user = userRepository.findById(req.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + req.getUserId()));
-            user.setTeam(team); //
+            user.setTeam(team);
         } else {
             // Register new team member
             if (req.getEmail() == null || req.getPassword() == null || req.getName() == null) {
@@ -117,6 +136,7 @@ public class TeamService {
                     .role(Role.EMPLOYEE)
                     .team(team)
                     .active(true)
+                    .passwordChangeRequired(true)
                     .build();
 
             user = userRepository.save(user);
@@ -130,6 +150,9 @@ public class TeamService {
                     .remainingDays(20)
                     .build();
             leaveBalanceRepository.save(balance);
+
+            // Generate single-use password setup token and send onboarding email
+            passwordSetupService.createAndSendSetupToken(user, req.getPassword());
         }
 
         User saved = userRepository.save(user);
@@ -179,5 +202,18 @@ public class TeamService {
 
     private UserResponse mapUserToResponse(User user) {
         return AdminService.getUserResponse(user);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> getUnassignedEmployees(String emailFilter) {
+        List<User> employees;
+        if (emailFilter != null && !emailFilter.trim().isBlank()) {
+            employees = userRepository.searchUnassignedEmployeesByEmail(emailFilter.trim());
+        } else {
+            employees = userRepository.findUnassignedEmployees();
+        }
+        return employees.stream()
+                .map(AdminService::getUserResponse)
+                .toList();
     }
 }

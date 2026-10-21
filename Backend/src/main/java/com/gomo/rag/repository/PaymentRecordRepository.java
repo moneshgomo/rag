@@ -16,19 +16,34 @@ import java.util.Optional;
 @Repository
 public interface PaymentRecordRepository extends JpaRepository<PaymentRecord, Long> {
 
-    @Query(value = "SELECT * FROM payment_records WHERE reimbursement_id = :reimbursementId LIMIT 1",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, reimbursement_id, razorpay_order_id, razorpay_payment_id, razorpay_signature, amount, currency, employee_id, employee_name, employee_contact, paid_by, paid_at
+        FROM payment_records
+        WHERE reimbursement_id = :reimbursementId
+        LIMIT 1
+        """, nativeQuery = true)
     Optional<PaymentRecord> findByReimbursementId(@Param("reimbursementId") Long reimbursementId);
 
-    @Query(value = "SELECT * FROM payment_records WHERE razorpay_order_id = :orderId LIMIT 1",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, reimbursement_id, razorpay_order_id, razorpay_payment_id, razorpay_signature, amount, currency, employee_id, employee_name, employee_contact, paid_by, paid_at
+        FROM payment_records
+        WHERE razorpay_order_id = :orderId
+        LIMIT 1
+        """, nativeQuery = true)
     Optional<PaymentRecord> findByRazorpayOrderId(@Param("orderId") String orderId);
 
-    @Query(value = "SELECT * FROM payment_records WHERE paid_by = :userId ORDER BY paid_at DESC",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, reimbursement_id, razorpay_order_id, razorpay_payment_id, razorpay_signature, amount, currency, employee_id, employee_name, employee_contact, paid_by, paid_at
+        FROM payment_records
+        WHERE paid_by = :userId
+        ORDER BY paid_at DESC
+        """, nativeQuery = true)
     List<PaymentRecord> findAllByPaidBy(@Param("userId") Long userId);
 
-    @Query(value = "SELECT * FROM payment_records ORDER BY paid_at DESC",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, reimbursement_id, razorpay_order_id, razorpay_payment_id, razorpay_signature, amount, currency, employee_id, employee_name, employee_contact, paid_by, paid_at
+        FROM payment_records
+        ORDER BY paid_at DESC
+        """, nativeQuery = true)
     List<PaymentRecord> findAllOrderByPaidAtDesc();
 }

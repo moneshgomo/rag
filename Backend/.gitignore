@@ -1,9 +1,10 @@
 HELP.md
+api.http
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
+Backend/data/vectorstore.json.bak-1792210066864
 ### STS ###
 .apt_generated
 .classpath
@@ -34,7 +35,6 @@ build/
 
 /src/main/resources/application-dev.yml
 /src/main/resources/application-prod.yml
-
-/api.http
+/src/main/resources/application/prod_backup.yml
 
 /logs

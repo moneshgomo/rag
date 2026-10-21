@@ -16,21 +16,37 @@ import java.util.List;
 @Repository
 public interface ReimbursementRequestRepository extends JpaRepository<ReimbursementRequest, Long> {
 
-    @Query(value = "SELECT * FROM reimbursement_requests WHERE employee_id = :employeeId ORDER BY created_at DESC",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, employee_id, manager_id, amount, currency, reason, bill_url, bill_extracted_text, rag_analysis, status, razorpay_order_id, razorpay_payment_id, processed_by, rejection_reason, created_at, updated_at
+        FROM reimbursement_requests
+        WHERE employee_id = :employeeId
+        ORDER BY created_at DESC
+        """, nativeQuery = true)
     List<ReimbursementRequest> findAllByEmployeeId(@Param("employeeId") Long employeeId);
 
-    @Query(value = "SELECT * FROM reimbursement_requests WHERE manager_id = :managerId ORDER BY created_at DESC",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, employee_id, manager_id, amount, currency, reason, bill_url, bill_extracted_text, rag_analysis, status, razorpay_order_id, razorpay_payment_id, processed_by, rejection_reason, created_at, updated_at
+        FROM reimbursement_requests
+        WHERE manager_id = :managerId
+        ORDER BY created_at DESC
+        """, nativeQuery = true)
     List<ReimbursementRequest> findAllByManagerId(@Param("managerId") Long managerId);
 
-    @Query(value = "SELECT * FROM reimbursement_requests WHERE manager_id = :managerId AND status = :status ORDER BY created_at DESC",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, employee_id, manager_id, amount, currency, reason, bill_url, bill_extracted_text, rag_analysis, status, razorpay_order_id, razorpay_payment_id, processed_by, rejection_reason, created_at, updated_at
+        FROM reimbursement_requests
+        WHERE manager_id = :managerId AND status = :status
+        ORDER BY created_at DESC
+        """, nativeQuery = true)
     List<ReimbursementRequest> findAllByManagerIdAndStatus(@Param("managerId") Long managerId,
                                                             @Param("status") String status);
 
-    @Query(value = "SELECT * FROM reimbursement_requests WHERE status = 'FINANCE_REVIEW' ORDER BY created_at ASC",
-            nativeQuery = true)
+    @Query(value = """
+        SELECT id, employee_id, manager_id, amount, currency, reason, bill_url, bill_extracted_text, rag_analysis, status, razorpay_order_id, razorpay_payment_id, processed_by, rejection_reason, created_at, updated_at
+        FROM reimbursement_requests
+        WHERE status = 'FINANCE_REVIEW'
+        ORDER BY created_at ASC
+        """, nativeQuery = true)
     List<ReimbursementRequest> findAllPendingForFinance();
 
     /** Manager sets status to MANAGER_REVIEW and attaches the RAG analysis. */

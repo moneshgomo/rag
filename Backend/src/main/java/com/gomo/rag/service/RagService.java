@@ -87,19 +87,13 @@ public class RagService {
             return Collections.emptyList();
         }
 
-        try {
+
             log.info("[RAG] Performing similarity search for query: '{}'", question);
             List<Document> result = vectorStore.similaritySearch(
                     SearchRequest.builder().query(question.trim()).topK(3).build());
             log.info("[RAG] Similarity search returned {} matching documents", result != null ? result.size() : 0);
             return result != null ? result : Collections.emptyList();
-        } catch (IllegalArgumentException iae) {
-            log.error("[RAG] Vector dimension mismatch during search: {}. The vector store needs to be re-ingested with the active embedding model.", iae.getMessage());
-            throw iae;
-        } catch (Exception e) {
-            log.error("[RAG] Error during similarity search: {}", e.getMessage(), e);
-            throw e;
-        }
+
     }
 
     public String ask(String question) {
