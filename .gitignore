@@ -29,7 +29,6 @@ target/
 
 # Local configuration
 Backend/src/main/resources/application-dev.yml
-Backend/src/main/resources/application.yaml
 ./Backend/src/main/resources/templates/**
 
 # Generated build files
@@ -66,7 +65,6 @@ build/
 .vscode/
 
 Backend/src/main/resources/application-dev.yml
-Backend/src/main/resources/application-prod.yml
 Backend/src/main/resources/prod_backup.yml
 Backend/data/vectorstore.json
 Backend/api.http

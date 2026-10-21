@@ -1,0 +1,100 @@
+
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME}
+
+  ai:
+    openai:
+      base-url: ${OPENAI_BASE_URL}
+      api-key: ${OPENAI_API_KEY}
+      timeout: ${OPENAI_TIMEOUT}
+      embedding:
+        model: ${OPENAI_EMBEDDING_MODEL}
+      chat:
+        model: ${OPENAI_CHAT_MODEL}
+      max-retries: ${OPENAI_MAX_RETRIES}
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO}
+    show-sql: ${JPA_SHOW_SQL}
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        debug: false
+
+server:
+  port: ${PORT}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: never
+  info:
+    app:
+      name: FinFlow
+      description: AI-powered Leave and Reimbursement Management
+      version: 1.0.0
+
+logging:
+  level:
+    com.gomo.rag: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: ${LOG_FILE}
+
+pdfco:
+  api-key: ${PDFCO_API_KEY}
+
+groq:
+  api-key: ${GROQ_API_KEY}
+  model: ${GROQ_MODEL}
+
+Razorpay:
+  api:
+    key: ${RAZORPAY_KEY}
+    secret: ${RAZORPAY_SECRET}
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS}
+
+# app.frontend-url
+app:
+  base-url: ${APP_BASE_URL}
+  frontend-url: ${APP_FRONTEND_URL}
+  mail:
+    from: ${APP_MAIL_FROM}
+    from-name: ${APP_MAIL_FROM_NAME}
+  token:
+    expiry-hours: ${APP_TOKEN_EXPIRY_HOURS}

@@ -29,7 +29,7 @@ jobs:
         run: |
           echo "SHA_TAG=${GITHUB_SHA}" >> "$GITHUB_ENV"
           echo "IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/finflow-backend" >> "$GITHUB_ENV"
-
+  
       - name: Build and Push Backend Image
         uses: docker/build-push-action@v5
         with:
