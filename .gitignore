@@ -28,7 +28,6 @@ target/
 *.ipr
 
 # Local configuration
-Backend/src/main/resources/application-dev.yml
 ./Backend/src/main/resources/templates/**
 
 # Generated build files

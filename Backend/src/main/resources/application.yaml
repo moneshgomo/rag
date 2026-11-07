@@ -4,4 +4,4 @@ spring:
   application:
     name: finflow
   profiles:
-    active: prod
+    active: dev
